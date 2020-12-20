@@ -2,8 +2,6 @@ package databases
 
 import (
 	"github.com/go-redis/redis/v7"
-	"github.com/google/wire"
-	"github.com/spf13/viper"
 	"net"
 	"time"
 )
@@ -33,11 +31,7 @@ type RedisConfig struct {
 	Type             RedisType `mapstructure:"type"`
 }
 
-func NewRedisClient(viper *viper.Viper) (client *redis.Client, err error) {
-	var config RedisConfig
-	if err := viper.UnmarshalKey("redis", &config); err != nil {
-		return nil, err
-	}
+func NewRedisClient( config RedisConfig) (client *redis.Client, err error) {
 	switch config.Type {
 	case Sentinel:
 		client = redis.NewFailoverClient(&redis.FailoverOptions{
@@ -62,5 +56,3 @@ func NewRedisClient(viper *viper.Viper) (client *redis.Client, err error) {
 	}
 	return
 }
-
-var RedisProvideSet = wire.NewSet(NewRedisClient)

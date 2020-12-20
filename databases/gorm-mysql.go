@@ -2,8 +2,6 @@ package databases
 
 import (
 	"fmt"
-	"github.com/google/wire"
-	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -22,12 +20,7 @@ type DbConfig struct {
 }
 
 //多数据源
-func NewMySqlDb(config *viper.Viper, discriminator string) (*gorm.DB, error) {
-	var dbConfig DbConfig
-	err := config.UnmarshalKey(discriminator, &dbConfig)
-	if err != nil {
-		return nil, err
-	}
+func NewMySqlDb(dbConfig DbConfig) (*gorm.DB, error) {
 	dsn :=  fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=true&loc=Local",
 		dbConfig.UserName, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.DB)
 	gdb, err := gorm.Open(mysql.New(mysql.Config{
@@ -53,9 +46,3 @@ func NewMySqlDb(config *viper.Viper, discriminator string) (*gorm.DB, error) {
 	}
 	return gdb, nil
 }
-
-func NewDefaultDB(viper *viper.Viper) (*gorm.DB, error) {
-	return NewMySqlDb(viper, "mysql")
-}
-
-var MysqlProvideSet = wire.NewSet(NewDefaultDB)
